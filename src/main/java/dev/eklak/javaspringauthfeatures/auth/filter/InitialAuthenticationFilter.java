@@ -37,9 +37,9 @@ public class InitialAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
         HttpServletResponse response, FilterChain filterChain) throws
         ServletException, IOException {
-        String requestData = request.getReader().lines().collect(Collectors.joining());
+//        String requestData = request.getReader().lines().collect(Collectors.joining());
         ObjectMapper mapper = new ObjectMapper();
-        User user = mapper.readValue(requestData, User.class);
+        User user = mapper.readValue(request.getInputStream(), User.class);
 //        String username = request.getHeader("username");
 //        String password = request.getHeader("password");
 //        String code = request.getHeader("code");
