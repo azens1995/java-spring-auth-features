@@ -9,13 +9,14 @@ public class UsernamePasswordAuthentication extends UsernamePasswordAuthenticati
     // when you call the one with two parameters, the authentication instance remains
     // unauthenticated, while the one with three parameters sets the Authentication
     // object as authenticated
-    public UsernamePasswordAuthentication(Object principal,
-        Object credentials) {
-        super(principal, credentials);
-    }
 
     public UsernamePasswordAuthentication(Object principal, Object credentials,
         Collection<? extends GrantedAuthority> authorities) {
         super(principal, credentials, authorities);
+    }
+
+    public UsernamePasswordAuthentication(Object principal,
+        Object credentials) {
+        super(principal, credentials);
     }
 }

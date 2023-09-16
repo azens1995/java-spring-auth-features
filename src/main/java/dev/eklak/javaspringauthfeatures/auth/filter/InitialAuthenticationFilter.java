@@ -1,13 +1,16 @@
 package dev.eklak.javaspringauthfeatures.auth.filter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.eklak.javaspringauthfeatures.auth.OtpAuthentication;
 import dev.eklak.javaspringauthfeatures.auth.UsernamePasswordAuthentication;
+import dev.eklak.javaspringauthfeatures.user.User;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import javax.crypto.SecretKey;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -34,29 +37,37 @@ public class InitialAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
         HttpServletResponse response, FilterChain filterChain) throws
         ServletException, IOException {
-        String username = request.getHeader("username");
-        String password = request.getHeader("password");
-        String code = request.getHeader("code");
+        String requestData = request.getReader().lines().collect(Collectors.joining());
+        ObjectMapper mapper = new ObjectMapper();
+        User user = mapper.readValue(requestData, User.class);
+//        String username = request.getHeader("username");
+//        String password = request.getHeader("password");
+//        String code = request.getHeader("code");
 
         // Checks if code is present or not, and uses the respective authentication
-        if (Objects.isNull(code)) {
-            Authentication a = new UsernamePasswordAuthentication(username, password);
+        if (Objects.isNull(user.getCode())) {
+            Authentication a = new UsernamePasswordAuthentication(user.getUsername(), user.getPassword());
             // Calls the authentication manager with username and password authentication
             manager.authenticate(a);
         } else {
-            Authentication a = new OtpAuthentication(username, code);
-            a = manager.authenticate(a);
+            Authentication a = new OtpAuthentication(user.getUsername(), user.getCode());
+            manager.authenticate(a);
 
             SecretKey key = Keys.hmacShaKeyFor(signingKey.getBytes(
                 StandardCharsets.UTF_8));
             // Build a JWT and stores the username of the authenticated user
             // as one of it's claims.
             String jwt = Jwts.builder()
-                .setClaims(Map.of("username", username))
+                .setClaims(Map.of("username", user.getUsername()))
                 .signWith(key)
                 .compact();
             // Adds the token to the Authorization header of the response
             response.setHeader("Authorization", jwt);
         }
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        return !request.getServletPath().equals("/login");
     }
 }

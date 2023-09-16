@@ -46,8 +46,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable(); // Disable csrf
         // Adds both filters to the filter chain
-        http.addFilterAt(initialAuthenticationFilter, BasicAuthenticationFilter.class)
-            .addFilterAfter(jwtAuthenticationFilter, BasicAuthenticationFilter.class);
+        http.addFilterAt(
+                initialAuthenticationFilter,
+                BasicAuthenticationFilter.class)
+            .addFilterAfter(
+                jwtAuthenticationFilter,
+                BasicAuthenticationFilter.class
+            );
 
         // Ensures that all requests are authenticated
         http.authorizeRequests()

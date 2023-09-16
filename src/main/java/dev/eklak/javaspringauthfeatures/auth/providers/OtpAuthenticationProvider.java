@@ -20,12 +20,12 @@ public class OtpAuthenticationProvider implements AuthenticationProvider {
         AuthenticationException {
         String username = authentication.getName();
         String code = String.valueOf(authentication.getCredentials());
-
         boolean result = proxy.sendOTP(username, code);
         if (result) {
             return new OtpAuthentication(username, code);
+        } else {
+            throw new BadCredentialsException("Bad Credentials");
         }
-        throw new BadCredentialsException("Bad Credentials");
     }
 
     @Override
